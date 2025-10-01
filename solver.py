@@ -1,17 +1,17 @@
 import numpy as np
 from copy import deepcopy
+
 # Global Variables
 solvedPuzzle = None # storing correct answer if found
 numOfBacktracks = 0 # number of backtracks for a statistical analysis later
 
 ## All Helper Functions
-
-# Function to print the solved puzzle instead of doing it in main function
+# Function to store the solved puzzle if found
 def found_solved(solved):
     global solvedPuzzle
     solvedPuzzle = solved
 
-# returns a true/false for failing (found an empty domain) the new domain after forward checking
+# Removes value from all other domains & ensures no domain is empty
 def forward_checking(curDomain, value, row, column):
     # copying the arrays so i don't change the global list & mess with the backtracking
     domainCopy = deepcopy(curDomain) # deep copy so lists get copied as well not just dictionary keys
@@ -22,13 +22,13 @@ def forward_checking(curDomain, value, row, column):
             continue
         if value in domainCopy[(row, i)]: domainCopy[(row, i)].remove(value)
         if len(domainCopy[(row, i)]) == 0:
-            return False, domainCopy
+            return True, domainCopy
     for i in range(9):
         if i == row:
             continue
         if value in domainCopy[(i, column)]: domainCopy[(i, column)].remove(value)
         if len(domainCopy[(i, column)]) == 0:
-            return False, domainCopy
+            return True, domainCopy
 
     # Check the local 3x3 using modulo to remove the values from there too
     startX = row - (row % 3)
@@ -41,29 +41,39 @@ def forward_checking(curDomain, value, row, column):
                 continue
             if value in domainCopy[(curRow, curCol)]: domainCopy[(curRow, curCol)].remove(value)
             if len(domainCopy[(curRow, curCol)]) == 0:
-                return False, domainCopy
+                return True, domainCopy
 
-    return True, domainCopy
+    return False, domainCopy
 
 def solve_sodoku(curPuzzle, curDomains, row, column):
-    print(curPuzzle)
+    # Tracking num of backtracks
+    global numOfBacktracks
+    numOfBacktracks +=1
+
+    # Checking if puzzle is solved
     if (row == 8) and (column == 9):
         found_solved(curPuzzle)
         return True
+
+    # Moving to next row
     if column == 9:
         row +=1
         column = 0
-    if curPuzzle[row][column] != '.':
+
+    # Cell already has a hint
+    if curPuzzle[row][column] != '0':
         return solve_sodoku(curPuzzle, curDomains, row, column+1)
+
+    # Try All Legal Values (values in the domain)
     for num in list(curDomains[(row, column)]):
         curPuzzle[row][column] = num
         isEmptyDomain, newDomain = forward_checking(curDomains, str(num), row, column)
         if(isEmptyDomain):
-            curPuzzle[row][column] = '.'
+            curPuzzle[row][column] = '0'
             continue
         if solve_sodoku(curPuzzle, newDomain, row, column + 1):
             return True
-        curPuzzle[row][column] = '.'
+        curPuzzle[row][column] = '0'
     return False
 
 
@@ -93,15 +103,17 @@ domains = {(i,j): list(defaultDomain) for i in range(9) for j in range(9)} # usi
 # that already account for the constraints applied by the hints
 for i in range(9):
     for j in range(9):
-        if inputPuzzle[i][j] != '.':
-            passed, domains = forward_checking(domains, inputPuzzle[i][j], i, j)
-            if not passed:
+        if inputPuzzle[i][j] != '0':
+            incorrect, domains = forward_checking(domains, inputPuzzle[i][j], i, j)
+            if incorrect:
                 print("INITIAL PUZZLE INCORRECT!")
                 exit(0)
 
 # Start Backtracking
 attempt = solve_sodoku(inputPuzzle, domains, 0, 0)
 if attempt:
+    print("SOLUTION FOUND")
+    print(f"NUM OF BACKTRACKS: {numOfBacktracks}")
     print(solvedPuzzle)
 else:
-    print("THIS IS IMPOSSIBLE YOU SCUMBAG!!!")
+    print("THIS IS IMPOSSIBLE!!!")
