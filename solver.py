@@ -1,3 +1,4 @@
+import sys, pygame as pg
 import numpy as np
 from copy import deepcopy
 
@@ -45,37 +46,45 @@ def forward_checking(curDomain, value, row, column):
 
     return False, domainCopy
 
-def solve_sodoku(curPuzzle, curDomains, row, column):
-    # Tracking num of backtracks
+def solve_sodoku(curPuzzle, curDomains, row, column, viz=None):
     global numOfBacktracks
-    numOfBacktracks +=1
 
-    # Checking if puzzle is solved
+    # Puzzle solved
     if (row == 8) and (column == 9):
         found_solved(curPuzzle)
+        if viz: viz.draw("Solved!")
         return True
 
-    # Moving to next row
+    # Move to next row
     if column == 9:
-        row +=1
+        row += 1
         column = 0
 
-    # Cell already has a hint
+    # Skip pre-filled cell
     if curPuzzle[row][column] != '0':
-        return solve_sodoku(curPuzzle, curDomains, row, column+1)
+        return solve_sodoku(curPuzzle, curDomains, row, column+1, viz)
 
-    # Try All Legal Values (values in the domain)
+    # Try all numbers in domain
     for num in list(curDomains[(row, column)]):
         curPuzzle[row][column] = num
         isEmptyDomain, newDomain = forward_checking(curDomains, str(num), row, column)
-        if(isEmptyDomain):
-            curPuzzle[row][column] = '0'
-            continue
-        if solve_sodoku(curPuzzle, newDomain, row, column + 1):
-            return True
-        curPuzzle[row][column] = '0'
-    return False
 
+        if not isEmptyDomain:
+            if viz:  # draw assignment
+                viz.puzzle[row][column] = num
+                viz.draw("Solving...")
+
+            if solve_sodoku(curPuzzle, newDomain, row, column+1, viz):
+                return True
+
+        # Undo assignment (backtrack)
+        curPuzzle[row][column] = '0'
+        numOfBacktracks += 1
+        if viz: 
+            viz.puzzle[row][column] = '0'
+            viz.increase_backtracks()
+
+    return False
 
 # connecting and reading the file
 try:
@@ -109,6 +118,24 @@ for i in range(9):
                 print("INITIAL PUZZLE INCORRECT!")
                 exit(0)
 
+## this funtion is a safe way to read the sodoku pizzle from the txt file and convert it to the 9x9 format. 
+def load_input():
+    try:
+        ##Tries to open the file and reads the contents as a string. 
+        with open("input.txt", "r") as f:
+            s = f.read().strip() 
+    except FileNotFoundError:
+        print("PLEASE MAKE SURE input.txt EXISTS")
+        sys.exit(1)
+
+#goes through file content and will keep digits from 1-9 
+    chars = [ch for ch in s if ch.isdigit()] 
+    if len(chars) < 81:
+        print("NOT ENOUGH CELLS INPUTTED FOR A 9x9")
+        sys.exit(1)
+
+    return np.array(chars[:81]).reshape(9, 9)
+
 # Start Backtracking
 attempt = solve_sodoku(inputPuzzle, domains, 0, 0)
 if attempt:
@@ -116,4 +143,4 @@ if attempt:
     print(f"NUM OF BACKTRACKS: {numOfBacktracks}")
     print(solvedPuzzle)
 else:
-    print("THIS IS IMPOSSIBLE!!!")
+    print("THIS IS IMPOSSIBLE!!!") 
