@@ -1,36 +1,36 @@
+# Imported Packages & Modules
 import pygame as pg
 import sys
 import numpy as np
-import time 
+import time
 from solver import solve_sodoku, forward_checking, found_solved  # using my solver functions
 
+# Global Variables
 CELL = 60    # size of one square in pixels
 GRID = 9     # 9x9 sudoku
-W, H = CELL * GRID, CELL * GRID + 50   # screen dimensions, the 50 is added for extra space 
+W, H = CELL * GRID, CELL * GRID + 50   # screen dimensions, the 50 is added for extra space
 
 class GuiSolver:
-
     ##Simple GUI class that uses pygame to show the sudoku being solved.
     # I separated this from the solver so the GUI is optional.
-
     def __init__(self, puzzle):
-        pg.init() 
+        pg.init()
         self.screen = pg.display.set_mode((W, H))
         pg.display.set_caption("Sodoku GUI Solver")
-        # Fonts for numbers and info text- WE CAN CHANGE THIS TO OTHER FONTS 
+        # Fonts for numbers and info text- WE CAN CHANGE THIS TO OTHER FONTS
         self.font = pg.font.SysFont("couriernew", 34, bold=True)
         self.small = pg.font.SysFont("arial", 22, bold=True)
-        
+
         self.puzzle = puzzle # Store puzzle (2D array of chars)
         self.backtracks = 0 # Track backtracks to show how many times we undo a move
         # Delay so solving isn’t instant (I useD time.sleep instead of pg delay)
-        self.delay = 0.08 
+        self.delay = 0.08
 
-### not sure if like all of this part, 80% going to it edit again. 
+### not sure if like all of this part, 80% going to it edit again.
     def draw(self, status="Solving..."):
-        
+
        # Draws the full sudoku board + grid + info bar.
-    
+
         # Makes sure user can close window at any time
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -69,15 +69,15 @@ class GuiSolver:
         self.backtracks += 1
         self.draw("Backtracking...")
 
-# Main 
-##The puzzle is stored in a txt file and has 81 digits. Here what is happeninng is that this will read the 
-#file as a string and turn it in to a 9x9 numpy array. 
+# Main
+##The puzzle is stored in a txt file and has 81 digits. Here what is happeninng is that this will read the
+#file as a string and turn it in to a 9x9 numpy array.
 if __name__ == "__main__":
 
     # Load puzzle from file
     try:
         with open("input.txt", "r") as f:
-            s = f.read().strip() # remove spaces or new lines to keep the puzzle digits 
+            s = f.read().strip() # remove spaces or new lines to keep the puzzle digits
     except FileNotFoundError:
         print("PLEASE MAKE SURE input.txt EXISTS")
         sys.exit(0)
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         sys.exit(1)
     inputPuzzle = np.array(chars[:81]).reshape(9, 9)
 
-    # Initializes domains 
+    # Initializes domains
     defaultDomain = ['1','2','3','4','5','6','7','8','9']
     domains = {(i, j): list(defaultDomain) for i in range(9) for j in range(9)}
     # Applies forward checking for all given hints
