@@ -9,4 +9,5 @@ A 9x9 sudoku solver that uses the forward checking technique for enforcing const
 - `solver.py` is the Text UI based solver that shows the solution with it's true speed, and gives the final puzzle with the number of backtracks as well
 - `gui_solver.py` is the GUI solver that shows the process of solving, slowed down to show steps. You can see the number of backtracks live & all the paths the algorithm goes down before reaching the final solution
 ## How to use
+- Setup a virtual environment & install the modules `numpy` & `pygame`
 - Simply plug the 9*9 puzzle as a string with '0' for unfilled values in `input.txt` & then run the script for the terminal or GUI
