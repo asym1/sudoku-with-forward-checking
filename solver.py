@@ -1,8 +1,8 @@
-import sys, pygame as pg
+import sys
 import numpy as np
 from copy import deepcopy
 
-# Global Variables
+# Global Variables for our Deterministic, Fully Observable
 solvedPuzzle = None # storing correct answer if found
 numOfBacktracks = 0 # number of backtracks for a statistical analysis later
 
@@ -80,7 +80,7 @@ def solve_sodoku(curPuzzle, curDomains, row, column, viz=None):
         # Undo assignment (backtrack)
         curPuzzle[row][column] = '0'
         numOfBacktracks += 1
-        if viz: 
+        if viz:
             viz.puzzle[row][column] = '0'
             viz.increase_backtracks()
 
@@ -118,24 +118,6 @@ for i in range(9):
                 print("INITIAL PUZZLE INCORRECT!")
                 exit(0)
 
-## this funtion is a safe way to read the sodoku pizzle from the txt file and convert it to the 9x9 format. 
-def load_input():
-    try:
-        ##Tries to open the file and reads the contents as a string. 
-        with open("input.txt", "r") as f:
-            s = f.read().strip() 
-    except FileNotFoundError:
-        print("PLEASE MAKE SURE input.txt EXISTS")
-        sys.exit(1)
-
-#goes through file content and will keep digits from 1-9 
-    chars = [ch for ch in s if ch.isdigit()] 
-    if len(chars) < 81:
-        print("NOT ENOUGH CELLS INPUTTED FOR A 9x9")
-        sys.exit(1)
-
-    return np.array(chars[:81]).reshape(9, 9)
-
 # Start Backtracking
 attempt = solve_sodoku(inputPuzzle, domains, 0, 0)
 if attempt:
@@ -143,4 +125,4 @@ if attempt:
     print(f"NUM OF BACKTRACKS: {numOfBacktracks}")
     print(solvedPuzzle)
 else:
-    print("THIS IS IMPOSSIBLE!!!") 
+    print("THIS IS IMPOSSIBLE!!!")

@@ -26,7 +26,6 @@ class GuiSolver:
         # Delay so solving isn’t instant (I useD time.sleep instead of pg delay)
         self.delay = 0.08
 
-### not sure if like all of this part, 80% going to it edit again.
     def draw(self, status="Solving..."):
 
        # Draws the full sudoku board + grid + info bar.
@@ -62,7 +61,7 @@ class GuiSolver:
         self.screen.blit(txt2, (W-140, H-40))
 
         pg.display.flip()
-        time.sleep(self.delay)   #  my own choice instead of pg.time.delay - ineffecient Im going to change this tommorow SARA REMEMBER !!1
+        time.sleep(self.delay)
 
     def increase_backtracks(self):
     ### Called whenever solver undoes a move.
